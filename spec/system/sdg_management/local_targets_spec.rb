@@ -14,8 +14,10 @@ describe "Local Targets", :js do
       click_link "Local Targets"
 
       expect(page).to have_title "SDG content - Local Targets"
-      within("table") { expect(page).to have_content "Affordable food for everyone" }
-      expect(page).to have_link "Create local target", href: new_sdg_management_local_target_path
+      within("table tr", text: "Affordable food") do
+        expect(page).to have_link "Edit"
+      end
+      expect(page).to have_link "Create local target"
     end
 
     scenario "Show local targets grouped by target" do
@@ -52,6 +54,29 @@ describe "Local Targets", :js do
       click_button "Create local target"
 
       expect(page).to have_content("3 errors prevented this SDG/Local Target from being saved.")
+    end
+  end
+
+  describe "Update" do
+    let!(:local_target) { create(:sdg_local_target, code: "1.1.1") }
+
+    scenario "Shows succesful notice when form is fullfilled correctly" do
+      visit edit_sdg_management_local_target_path(local_target)
+
+      fill_in "Title", with: "Local target title update"
+      click_button "Update local target"
+
+      expect(page).to have_content("Local target updated successfully")
+      expect(page).to have_content("Local target title update")
+    end
+
+    scenario "Shows form errors when not valid" do
+      visit edit_sdg_management_local_target_path(local_target)
+
+      fill_in "Title", with: ""
+      click_button "Update local target"
+
+      expect(page).to have_content("1 error prevented this SDG/Local Target from being saved.")
     end
   end
 end
